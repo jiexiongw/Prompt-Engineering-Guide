@@ -1,3 +1,27 @@
 # Tree of Thoughts (ToT)
 
-This page needs a translation! Feel free to contribute a translation by clicking the `Edit this page` button on the right side.
+import { Callout, FileTree } from 'nextra-theme-docs' import {Screenshot} from 'components/screenshot' import TOT from '../../img/TOT.png' import TOT2 from '../../img/TOT2.png' import TOT3 from '../../img/TOT3.png'
+
+对于需要探索或前瞻策略的复杂任务来说，仅使用简单的提示词技术是不够的。为此 Yao et el. (2023) 最近提出了思维树（ToT）框架，这个框架将CoT框架进行了推广，鼓励在语言模型解决一般问题的中间步骤里进行思维分支的探索。
+
+ToT会构建一颗思维树，这里“思维”代表解决问题步骤中的连贯语言序列。该方法令语言模型对中间步骤进行仔细的评估。这样语言模型生成和评价“思维过程”的能力就由搜索算法（如广度优先、深度优先）结合起来了，从而使得语言模型具有了能进行前瞻和回顾的系统性探索的能力。
+ToT maintains a tree of thoughts, where thoughts represent coherent language sequences that serve as intermediate steps toward solving a problem. This approach enables an LM to self-evaluate the progress intermediate thoughts make towards solving a problem through a deliberate reasoning process. The LM ability to generate and evaluate thoughts is then combined with search algorithms (e.g., breadth-first search and depth-first search) to enable systematic exploration of thoughts with lookahead and backtracking.
+
+ToT框架说明如下图：
+The ToT framework is illustrated below:
+
+Image Source: [Yao et el. (2023)](https://arxiv.org/abs/2305.10601)
+使用ToT时，需要定义好思考步骤及候选结果。例如论文中展示的24点游戏是一个需要数学推理的问题，可以拆解为3个思考步骤，每一步包含一个中间等式。在每一步中保留最好的5条候选。
+
+When using ToT, different tasks requires defining the number of candidates and the number of thoughts/steps. For instance, as demonstrated in the paper, Game of 24 is used as a mathematical reasoning task which requires decomposing the thoughts into 3 steps, each involving an intermediate equation. At each step, the best b=5 candidates are kept.
+
+
+首先要在24点游戏的任务中执行广度优先ToT，然后令语言模型对候选结果进行“确信/可能/不可能”的评价。如作者所述：”目的是提升回答中正确的比例，同时排除过大/过小的常识问题“
+To perform BFS in ToT for the Game of 24 task, the LM is prompted to evaluate each thought candidate as "sure/maybe/impossible" with regard to reaching 24. As stated by the authors, "the aim is to promote correct partial solutions that can be verdicted within few lookahead trials, and eliminate impossible partial solutions based on "too big/small" commonsense, and keep the rest "maybe"". Values are sampled 3 times for each thought. The process is illustrated below:
+
+Image Source: [Yao et el. (2023)](https://arxiv.org/abs/2305.10601)
+
+From the results reported in the figure below, ToT substantially outperforms the other prompting methods:
+
+Image Source: [Yao et el. (2023)](https://arxiv.org/abs/2305.10601)
+Code available here
